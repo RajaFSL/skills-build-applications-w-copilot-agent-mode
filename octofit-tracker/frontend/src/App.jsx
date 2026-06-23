@@ -22,7 +22,10 @@ function App() {
   return (
     <div className="container py-4">
       <header className="mb-4">
-        <h1 className="h3 mb-3">Octofit Tracker</h1>
+        <div className="d-flex align-items-center gap-3 mb-3">
+          <img src="/octofitapp-small.png" alt="Octofit logo" style={{ height: '48px' }} />
+          <h1 className="h3 mb-0">Octofit Tracker</h1>
+        </div>
         <p className="mb-2 text-secondary">React 19 presentation tier for the Octofit multi-tier app.</p>
         {!isCodespaceConfigured && (
           <div className="alert alert-warning py-2 mb-3" role="alert">
