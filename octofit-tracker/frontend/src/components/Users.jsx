@@ -14,6 +14,11 @@ function Users({ apiBaseUrl }) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
+  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+  const usersUrl = codespaceName
+    ? `https://${codespaceName}-8000.app.github.dev/api/users/`
+    : `${apiBaseUrl}/users/`
+
   useEffect(() => {
     let active = true
 
@@ -22,7 +27,7 @@ function Users({ apiBaseUrl }) {
       setError('')
 
       try {
-        const response = await fetch(`${apiBaseUrl}/users/`)
+        const response = await fetch(usersUrl)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -45,7 +50,7 @@ function Users({ apiBaseUrl }) {
     return () => {
       active = false
     }
-  }, [apiBaseUrl])
+  }, [usersUrl])
 
   if (loading) return <p>Loading users...</p>
   if (error) return <div className="alert alert-danger">{error}</div>

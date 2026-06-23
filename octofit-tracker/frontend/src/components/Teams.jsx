@@ -14,6 +14,11 @@ function Teams({ apiBaseUrl }) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
+  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+  const teamsUrl = codespaceName
+    ? `https://${codespaceName}-8000.app.github.dev/api/teams/`
+    : `${apiBaseUrl}/teams/`
+
   useEffect(() => {
     let active = true
 
@@ -22,7 +27,7 @@ function Teams({ apiBaseUrl }) {
       setError('')
 
       try {
-        const response = await fetch(`${apiBaseUrl}/teams/`)
+        const response = await fetch(teamsUrl)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -45,7 +50,7 @@ function Teams({ apiBaseUrl }) {
     return () => {
       active = false
     }
-  }, [apiBaseUrl])
+  }, [teamsUrl])
 
   if (loading) return <p>Loading teams...</p>
   if (error) return <div className="alert alert-danger">{error}</div>

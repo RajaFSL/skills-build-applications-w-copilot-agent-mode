@@ -14,6 +14,11 @@ function Workouts({ apiBaseUrl }) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
+  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+  const workoutsUrl = codespaceName
+    ? `https://${codespaceName}-8000.app.github.dev/api/workouts/`
+    : `${apiBaseUrl}/workouts/`
+
   useEffect(() => {
     let active = true
 
@@ -22,7 +27,7 @@ function Workouts({ apiBaseUrl }) {
       setError('')
 
       try {
-        const response = await fetch(`${apiBaseUrl}/workouts/`)
+        const response = await fetch(workoutsUrl)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -45,7 +50,7 @@ function Workouts({ apiBaseUrl }) {
     return () => {
       active = false
     }
-  }, [apiBaseUrl])
+  }, [workoutsUrl])
 
   if (loading) return <p>Loading workouts...</p>
   if (error) return <div className="alert alert-danger">{error}</div>

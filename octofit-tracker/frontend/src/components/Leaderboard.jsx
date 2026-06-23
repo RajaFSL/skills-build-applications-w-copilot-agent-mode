@@ -14,6 +14,11 @@ function Leaderboard({ apiBaseUrl }) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
+  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+  const leaderboardUrl = codespaceName
+    ? `https://${codespaceName}-8000.app.github.dev/api/leaderboard/`
+    : `${apiBaseUrl}/leaderboard/`
+
   useEffect(() => {
     let active = true
 
@@ -22,7 +27,7 @@ function Leaderboard({ apiBaseUrl }) {
       setError('')
 
       try {
-        const response = await fetch(`${apiBaseUrl}/leaderboard/`)
+        const response = await fetch(leaderboardUrl)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -45,7 +50,7 @@ function Leaderboard({ apiBaseUrl }) {
     return () => {
       active = false
     }
-  }, [apiBaseUrl])
+  }, [leaderboardUrl])
 
   if (loading) return <p>Loading leaderboard...</p>
   if (error) return <div className="alert alert-danger">{error}</div>

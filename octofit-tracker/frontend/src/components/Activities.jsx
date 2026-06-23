@@ -14,6 +14,11 @@ function Activities({ apiBaseUrl }) {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
 
+  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+  const activitiesUrl = codespaceName
+    ? `https://${codespaceName}-8000.app.github.dev/api/activities/`
+    : `${apiBaseUrl}/activities/`
+
   useEffect(() => {
     let active = true
 
@@ -22,7 +27,7 @@ function Activities({ apiBaseUrl }) {
       setError('')
 
       try {
-        const response = await fetch(`${apiBaseUrl}/activities/`)
+        const response = await fetch(activitiesUrl)
         if (!response.ok) {
           throw new Error(`Request failed with status ${response.status}`)
         }
@@ -45,7 +50,7 @@ function Activities({ apiBaseUrl }) {
     return () => {
       active = false
     }
-  }, [apiBaseUrl])
+  }, [activitiesUrl])
 
   if (loading) return <p>Loading activities...</p>
   if (error) return <div className="alert alert-danger">{error}</div>
