@@ -13,3 +13,5 @@ const workoutSchema = new Schema(
 
 export type WorkoutDocument = InferSchemaType<typeof workoutSchema>;
 export const WorkoutModel = model<WorkoutDocument>('Workout', workoutSchema);
+
+

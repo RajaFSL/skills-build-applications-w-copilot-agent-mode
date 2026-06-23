@@ -13,3 +13,4 @@ const leaderboardSchema = new Schema(
 
 export type LeaderboardDocument = InferSchemaType<typeof leaderboardSchema>;
 export const LeaderboardModel = model<LeaderboardDocument>('Leaderboard', leaderboardSchema);
+

@@ -12,3 +12,5 @@ const teamSchema = new Schema(
 
 export type TeamDocument = InferSchemaType<typeof teamSchema>;
 export const TeamModel = model<TeamDocument>('Team', teamSchema);
+
+

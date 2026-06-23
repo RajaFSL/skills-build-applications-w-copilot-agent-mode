@@ -13,3 +13,4 @@ const activitySchema = new Schema(
 
 export type ActivityDocument = InferSchemaType<typeof activitySchema>;
 export const ActivityModel = model<ActivityDocument>('Activity', activitySchema);
+
