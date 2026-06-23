@@ -1,38 +1,84 @@
-import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom'
-import octofitLogo from '/src/../../../docs/octofitapp-small.png'
+import { NavLink, Navigate, Route, Routes } from 'react-router-dom'
 import Activities from './components/Activities'
 import Leaderboard from './components/Leaderboard'
 import Teams from './components/Teams'
 import Users from './components/Users'
 import Workouts from './components/Workouts'
 
+function buildApiBaseUrl() {
+  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+
+  if (codespaceName) {
+    return `https://${codespaceName}-8000.app.github.dev/api`
+  }
+
+  return 'http://localhost:8000/api'
+}
+
 function App() {
+  const apiBaseUrl = buildApiBaseUrl()
+  const isCodespaceConfigured = Boolean(import.meta.env.VITE_CODESPACE_NAME?.trim())
+
   return (
-    <BrowserRouter>
-      <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div className="container-fluid">
-          <NavLink className="navbar-brand" to="/">
-            <img src={octofitLogo} alt="OctoFit" height="30" className="me-2" />
-            OctoFit Tracker
-          </NavLink>
-          <div className="navbar-nav">
-            <NavLink className="nav-link" to="/activities">Activities</NavLink>
-            <NavLink className="nav-link" to="/leaderboard">Leaderboard</NavLink>
-            <NavLink className="nav-link" to="/teams">Teams</NavLink>
-            <NavLink className="nav-link" to="/users">Users</NavLink>
-            <NavLink className="nav-link" to="/workouts">Workouts</NavLink>
-          </div>
+    <div className="container py-4">
+      <header className="mb-4">
+        <div className="d-flex align-items-center gap-3 mb-3">
+          <img src="/octofitapp-small.png" alt="Octofit logo" style={{ height: '48px' }} />
+          <h1 className="h3 mb-0">Octofit Tracker</h1>
         </div>
-      </nav>
-      <Routes>
-        <Route path="/" element={<Activities />} />
-        <Route path="/activities" element={<Activities />} />
-        <Route path="/leaderboard" element={<Leaderboard />} />
-        <Route path="/teams" element={<Teams />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="/workouts" element={<Workouts />} />
-      </Routes>
-    </BrowserRouter>
+        <p className="mb-2 text-secondary">React 19 presentation tier for the Octofit multi-tier app.</p>
+        {!isCodespaceConfigured && (
+          <div className="alert alert-warning py-2 mb-3" role="alert">
+            VITE_CODESPACE_NAME is not set. Using localhost fallback for API requests.
+          </div>
+        )}
+        <div className="small text-secondary mb-3">API base URL: {apiBaseUrl}</div>
+        <nav className="nav nav-pills gap-2 flex-wrap">
+          <NavLink
+            to="/users"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : 'link-secondary'}`}
+          >
+            Users
+          </NavLink>
+          <NavLink
+            to="/teams"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : 'link-secondary'}`}
+          >
+            Teams
+          </NavLink>
+          <NavLink
+            to="/activities"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : 'link-secondary'}`}
+          >
+            Activities
+          </NavLink>
+          <NavLink
+            to="/leaderboard"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : 'link-secondary'}`}
+          >
+            Leaderboard
+          </NavLink>
+          <NavLink
+            to="/workouts"
+            className={({ isActive }) => `nav-link ${isActive ? 'active' : 'link-secondary'}`}
+          >
+            Workouts
+          </NavLink>
+        </nav>
+      </header>
+
+      <main>
+        <Routes>
+          <Route path="/" element={<Navigate to="/users" replace />} />
+          <Route path="/users" element={<Users apiBaseUrl={apiBaseUrl} />} />
+          <Route path="/teams" element={<Teams apiBaseUrl={apiBaseUrl} />} />
+          <Route path="/activities" element={<Activities apiBaseUrl={apiBaseUrl} />} />
+          <Route path="/leaderboard" element={<Leaderboard apiBaseUrl={apiBaseUrl} />} />
+          <Route path="/workouts" element={<Workouts apiBaseUrl={apiBaseUrl} />} />
+          <Route path="*" element={<Navigate to="/users" replace />} />
+        </Routes>
+      </main>
+    </div>
   )
 }
 

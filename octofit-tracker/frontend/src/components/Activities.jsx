@@ -1,48 +1,89 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react'
 
-const CODESPACE_NAME = import.meta.env.VITE_CODESPACE_NAME;
-// VITE_CODESPACE_NAME must be defined in .env.local for the codespace API to work
-const API_URL = CODESPACE_NAME
-  ? `https://${CODESPACE_NAME}-8000.app.github.dev/api/activities/`
-  : 'http://localhost:8000/api/activities/';
-
-function Activities() {
-  const [activities, setActivities] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    fetch(API_URL)
-      .then((res) => res.json())
-      .then((data) => setActivities(Array.isArray(data) ? data : (data.results ?? [])))
-      .catch((err) => setError(err.message));
-  }, []);
-
-  return (
-    <div className="container mt-4">
-      <h2>Activities</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
-      <table className="table table-striped">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th>Activity Type</th>
-            <th>Duration (min)</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {activities.map((activity) => (
-            <tr key={activity._id ?? activity.id}>
-              <td>{activity.user}</td>
-              <td>{activity.activity_type}</td>
-              <td>{activity.duration}</td>
-              <td>{activity.date}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+function getItemsFromPayload(payload) {
+  if (Array.isArray(payload)) return payload
+  if (Array.isArray(payload?.items)) return payload.items
+  if (Array.isArray(payload?.results)) return payload.results
+  if (Array.isArray(payload?.data)) return payload.data
+  if (Array.isArray(payload?.docs)) return payload.docs
+  return []
 }
 
-export default Activities;
+function Activities({ apiBaseUrl }) {
+  const [activities, setActivities] = useState([])
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
+
+  const codespaceName = import.meta.env.VITE_CODESPACE_NAME?.trim()
+  const activitiesUrl = codespaceName
+    ? `https://${codespaceName}-8000.app.github.dev/api/activities/`
+    : `${apiBaseUrl}/activities/`
+
+  useEffect(() => {
+    let active = true
+
+    async function loadActivities() {
+      setLoading(true)
+      setError('')
+
+      try {
+        const response = await fetch(activitiesUrl)
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`)
+        }
+
+        const payload = await response.json()
+        if (!active) return
+        setActivities(getItemsFromPayload(payload))
+      } catch (fetchError) {
+        if (!active) return
+        setError(fetchError instanceof Error ? fetchError.message : 'Unable to load activities.')
+      } finally {
+        if (active) {
+          setLoading(false)
+        }
+      }
+    }
+
+    void loadActivities()
+
+    return () => {
+      active = false
+    }
+  }, [activitiesUrl])
+
+  if (loading) return <p>Loading activities...</p>
+  if (error) return <div className="alert alert-danger">{error}</div>
+
+  return (
+    <section>
+      <h2 className="h4 mb-3">Activities</h2>
+      <div className="table-responsive">
+        <table className="table table-striped table-hover align-middle">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Activity</th>
+              <th className="text-end">Duration (min)</th>
+              <th className="text-end">Calories</th>
+              <th>Completed</th>
+            </tr>
+          </thead>
+          <tbody>
+            {activities.map((activity) => (
+              <tr key={activity._id ?? `${activity.username}-${activity.completedAt}`}>
+                <td>{activity.username}</td>
+                <td>{activity.activityType}</td>
+                <td className="text-end">{activity.durationMinutes}</td>
+                <td className="text-end">{activity.caloriesBurned}</td>
+                <td>{activity.completedAt ? new Date(activity.completedAt).toLocaleString() : 'N/A'}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  )
+}
+
+export default Activities
